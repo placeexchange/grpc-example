@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: grpc-example
+  name: grpc-example
+  namespace: demo
+spec:
+  clusterIP: None
+  selector:
+    service: grpc-example
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grpc-example
+  namespace: demo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: grpc-example
+    spec:
+      containers:
+      - name: grpc-py
+        image: placeexchange/grpc-demo:latest
+        imagePullPolicy: Always
+        ports:
+        - name: grpc-api
+          containerPort: 50051
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+      restartPolicy: Always
+---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: grpc-mapping
+  namespace: demo
+spec:
+  headers:
+    :authority: grpc.subdomain.example.com
+  grpc: True
+  prefix: /helloworld.Greeter/
+  rewrite: /helloworld.Greeter/
+  service: grpc-example:50051

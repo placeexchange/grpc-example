@@ -1,0 +1,23 @@
+---
+#Configure host cert
+apiVersion: getambassador.io/v2
+kind: Host
+metadata:
+  annotations:
+  name: edge
+  namespace: ambassador
+spec:
+  acmeProvider:
+    email: registration@example.com
+  hostname: edge.example.com
+---
+apiVersion: getambassador.io/v2
+kind: TLSContext
+metadata:
+  name: edge-context
+  namespace: ambassador
+spec:
+  hosts:
+  - edge.example.com
+  secret: edge.example.com
+  alpn_protocols: h2
